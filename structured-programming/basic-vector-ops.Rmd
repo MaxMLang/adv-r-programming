@@ -1,0 +1,115 @@
+---
+title: "basic-vector-ops"
+author: "@MaxMLang (Github)"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(checkmate)
+```
+
+# `bin_count`
+This function counts the number of observations in a specific bin. The user
+can specify the cutoff points. The function returns a named vector. 
+
+## Inputs
+* `observations`: A numeric vector containing observations
+* `cuts`: A numeric vector with cutoff points
+* `binnames`: A character vector specifying the labels for the bins in the output
+
+## Output
+* A named vector with the number of observations in each bin.
+
+## Code
+```{r}
+bin_count <- function(observations, cuts, binnames) {
+  cumobs <- vapply(c(cuts, Inf), function(x) sum(observations < x), 0)
+  result <- diff(c(0, cumobs))
+  names(result) <- binnames
+  result
+}
+```
+## Worked example
+```{r}
+observations <-  c(18, 22, 28)
+cuts  <- c(15, 19.5, 24)
+binnames <-  c("Severely underweight", "Underweight", "Healthy", "Overweight")
+bin_count(observations, cuts, binnames)
+```
+# `bin_data`
+This function bins each data point into a category / bin. The user
+can specify the cutoff points. The function returns a named vector. 
+
+## Inputs
+* `observations`: A numeric vector containing observations
+* `cuts`: A numeric vector with cutoff points
+* `binnames`: A character vector specifying the labels for the bins in the output
+
+## Output
+* A named vector with length of the input data that is now binned.
+```{r}
+bin_data <- function(observations, cuts, binnames) {
+  cut(observations, breaks = c(-Inf, cuts, Inf), labels = binnames, right = FALSE, ordered_result = TRUE)
+}
+```
+## Worked Example
+```{r}
+observations <- c(20, 23, 28)
+cuts <- c(16, 18.5, 25)
+binnames <-  c("Severely underweight", "Underweight", "Healthy", "Overweight")
+bin_data(observations, cuts, binnames)
+```
+
+# `mark_divisible`
+This function marks every number that is divisible by the specified the divisor 
+up to the specified length of the sequence.
+
+## Inputs
+* `up.to`: A numeric vector specifying the end of the sequence
+* `divisor`: A numeric vector specifying the divisor
+* `marker`: A character vector specifying the marker
+
+## Output
+* A named vector with length of the input data that is now binned.
+```{r}
+mark_divisible <- function(up.to, divisor = 2, marker = "even") {
+  # your code
+  sequence <- seq_len(up.to)
+  ret <- as.character(sequence)
+  is.divisible <- sequence %% divisor == 0
+  ret[is.divisible] <- marker
+  ret
+}
+```
+## Worked Example
+```{r}
+up.to <- 50
+divisor <- 9
+marker <-  "X"
+mark_divisible(up.to, divisor, marker)
+```
+
+# `find_fibonacci`
+Finds the n th Fibonacci number. It is a recursive approach.
+## Inputs
+* `n` a non-negative scalar integer value
+
+## Output
+* scalar value: the n'th Fibonacci number.
+
+```{r}
+find_fibonacci <- function(n) {
+  assertCount(n, tol = 1e-100)
+  if (n <= 1) {
+    return(n)
+  }
+  find_fibonacci(n - 1) + find_fibonacci(n - 2)
+}
+```
+## Worked example
+```{r}
+find_fibonacci(5)
+find_fibonacci(14)
+```
+

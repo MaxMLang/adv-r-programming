@@ -1,0 +1,83 @@
+---
+title: "basic-matrix-df-ops"
+author: "@MaxMLang (Github)"
+output: pdf_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(checkmate)
+```
+
+# `chess_black_sum`
+This functions sums all numbers that would be on black fields on a chessboard, here
+represented as a matrix.
+
+## Inputs
+* matrix: A matrix representing a chessboard
+
+## Output
+* A numeric vector containing the number of black fields
+
+## Code
+```{r}
+chess_black_sum <- function(matrix) {
+  sum(matrix[(row(matrix) + col(matrix)) %% 2 == 1])
+}
+```
+
+## Worked example
+```{r}
+matrix <- matrix(data= 1:9, nrow = 3)
+matrix
+chess_black_sum(matrix)
+```
+
+# `which_mat_min`
+This function finds the indexed positon of the minimum value in the matrix.
+
+## Inputs
+* matrix: A matrix 
+
+## Output
+* A numeric vector containing the minimum indices i,j
+
+## Code
+```{r}
+which_mat_min <- function(matrix) {
+  # your code
+  wm <- which.min(matrix)
+  as.numeric(c(row(matrix)[wm], col(matrix)[wm]))
+}
+```
+
+## Worked example
+```{r}
+matrix <- matrix(sample(100, size = 25), ncol = 5)
+matrix
+which_mat_min(matrix)
+```
+
+## `diag_df`
+This function returns the diagonal of a dataframe.
+
+## Inputs
+* `df`: a data.frame with arbitrary rows and columns
+
+## Output
+* unnamed `list` of the diagonal elements of `df`
+
+## Code
+```{r}
+diag_df <- function(df) {
+  # your code
+  assertDataFrame(df)
+  lapply(seq_len(min(nrow(df), ncol(df))), function(i) df[i, i])
+}
+```
+## Worked example
+```{r}
+df <- data.frame(v1= sample(50, 10), v2= sample(50, 10), v3= sample(50, 10))
+df
+diag_df(df)
+```
+

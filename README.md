@@ -10,22 +10,22 @@ The course included the following topics:
   - collaborative software development practices
   - strategies to avoid merging conflicts
   - solving merging conflicts
-* *Structured Programming*
+* **Structured Programming**
   - data types & control structures
   - programming style(s)
   - functions & `lapply`
-* *Regular Expressions, Error Handling and Modular Software*
+* **Regular Expressions, Error Handling and Modular Software**
   - regex & string operations in R
   - `{checkmate}` package
   - conditions & errors
   - modular programming
-* *Profiling, Tests, and Good Software*
+* **Profiling, Tests, and Good Software**
   - Good Software (Development)
   - `{testthat}` package
   - profiling & performance: `{profviz}` and `{microbenchmark}`
-* *Tabular Data*
+* **Tabular Data**
   - `{data.table}` package
-* *object-oriented programming ("oop") in R*
+* **object-oriented programming ("oop") in R**
   - R6
   - S3
   
