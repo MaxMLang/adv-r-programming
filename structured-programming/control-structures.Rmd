@@ -6,6 +6,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(checkmate)
 ```
 # `find_opposite`
 Finds the 'opposite' of a value in a two column dataframe.
@@ -74,5 +75,32 @@ startcell <- c(0,0,1,0,1,0,0,1,0)
 cellular_auto(startcell)
 ```
 
+# `checksum`
+Calculates the [checksum](https://en.wikipedia.org/wiki/Checksum) of a given list.
+
+## Inputs
+* lst: A list consisting of rows of apparently random numbers.
+
+## Output
+* A numeric vector of length 1 containing the checksum.
+
+## Code
+```{r}
+checksum <- function(lst) {
+  # your code
+  assertList(lst, types = c("integer", "numeric", "double"), any.missing = TRUE)
+
+  diffs <- vapply(lst, function(x) max(x, na.rm = TRUE) - min(x, na.rm = TRUE),
+      FUN.VALUE = 1
+  )
+
+  return(sum(diffs, na.rm = TRUE))
+}
+```
+## Worked example
+```{r}
+lst <- list(c(4, 1, 9, 4), c(7, 6, 3), c(5, 2, 4, 8))
+checksum(lst)
+```
 
 

@@ -112,4 +112,45 @@ find_fibonacci <- function(n) {
 find_fibonacci(5)
 find_fibonacci(14)
 ```
+# `vec_threshold`
+Returns all elements of the vector that are at least onee number greater than the
+threshold.
 
+## Inputs
+* `vectors`: a list of `numeric` vectors
+* `threshold`: a scalar numeric
+
+## Outputs
+Character vector containing all elements from `vectors` that contain at least one number greater than `threshold`.
+#
+# Examples:
+# ex03VectorThreshold(
+#   list(numeric(0), 1:3, 8:11, c(-100, 100)),
+#   threshold = 10)
+# --> list(8:11, c(-100, 100))
+# ex03VectorThreshold(list(), 10) --> list()
+# ex03VectorThreshold(list(numeric(0), 0, -1), 10) --> list()
+# ex03VectorThreshold(10, 10) --> ERROR (`vectors` is not a list of numerics)
+# ex03VectorThreshold(list(10), "10") --> ERROR (threshold is not a numeric)
+#
+# You may want to use `Filter`, and the solution of ex02VectorCondition may be useful here.
+```{r}
+vec_threshold <- function(vectors, threshold) {
+  assertList(vectors, any.missing = FALSE)
+  Filter(vec_condition(threshold), vectors)
+}
+
+# helper function
+vec_condition <- function(threshold) {
+  assertNumber(threshold)
+  function(vect) {
+    assertNumeric(vect, any.missing = FALSE)
+    any(vect > threshold)
+  }
+}
+```
+## Worked example
+```{r}
+vec_threshold(list(numeric(0), 1:3, 8:11, c(-100, 100)), threshold = 10)
+vec_threshold(list(numeric(0), 0, -1), 10)
+```

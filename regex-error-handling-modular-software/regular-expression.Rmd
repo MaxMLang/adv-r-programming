@@ -1,0 +1,45 @@
+---
+title: "regular-expression"
+author: "Max Lang"
+date: "10/27/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(checkmate)
+```
+# `find_url``
+This function will find URLs in long text and splits them into the respective components
+such as protocol, domainname etc.
+
+#ä Input
+* `input`: A `character(1)` containing the input string.
+
+## Output:
+* A data.frame with columns protocol, domainname and path.
+
+## Code
+```{r}
+find_url <- function(input) {
+  assertString(input)
+  rx <- "(?<![[:alpha:]])(https?)://([[:alnum:]][-[:alnum:]]*(?:\\.[[:alnum:]][-[:alnum:]]*)+)/([-a-z[:digit:]/]*)"
+
+  matches <- gregexpr(rx, input, perl = TRUE, ignore.case = TRUE)
+  urls <- regmatches(input, matches)[[1]]
+
+  m <- regexec(rx, urls, perl = TRUE, ignore.case = TRUE)
+  urlparts <- regmatches(urls, m)
+  res <- t(vapply(urlparts, identity, character(4), USE.NAMES = FALSE))
+  res <- res[, -1]
+  res <- as.data.frame(res, stringsAsFactors = FALSE)
+  colnames(res) <- c("protocol", "domainname", "path")
+  res
+}
+```
+## Worked example
+```{r}
+string <- "https://www.google.com/ is probably the most popular url, sometimes used ashttp://www.google.com/ if one forgets to use the more secure https:// protocol. Another URL that is popular is http://youtube.com which is owned by the same company. On some computers, it is possible to find a website at http://localhost/ if the computer runs a webserver. This file can be found at HTTPS://GITHUB.COM/MAXMLANG/STRUCTURED-PROGRAMMING."
+find_url(string)
+```
+

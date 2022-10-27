@@ -1,0 +1,66 @@
+---
+title: "missing-value-imputation"
+author: "Max Lang"
+date: "10/27/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(checkmate)
+```
+
+# `handle_missing`
+This function gives several options to imputing or remove missing values in a data.frame.
+
+## Inputs
+* df: A dataframe
+* choice: Either "remove" or "impute", to define the missing value handling
+* missing: The encoding of missing values
+```{r}
+# Helper Function
+getmode <- function(v, na.rm = TRUE) {
+    if (na.rm) v <- na.omit(v)
+
+    uniqv <- unique(v)
+    uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+handle_missing <- function(df, choice, missing = NA) {
+    assertDataFrame(df, types = c("character", "numeric"))
+    assert(testCharacter(missing, any.missing = TRUE, len = 1),
+        testInt(missing),
+        combine = "or"
+    )
+    assertChoice(choice, choices = c("remove", "impute"))
+
+    df[df == missing] <- NA  # recode missing values as NA's
+
+    if (choice == "remove") {
+        df <- na.omit(df)
+    } else {
+        for (i in colnames(df)) {
+            col <- df[[i]]
+            if (is.numeric(col)) {
+                df[[i]][is.na(col)] <- median(col, na.rm = TRUE)
+            } else {
+                df[[i]][is.na(col)] <- getmode(col)
+            }
+        }
+    }
+
+    return(df)
+}
+```
+# Worked example
+```{r}
+df <- data.frame(v1= rnorm(10), v2= rnorm(10), v3= rnorm(10))
+# Sample random observations that miss
+df[sample(10,5),1] <- NA
+df[sample(10,3),2] <- NA
+df[sample(10,2),3] <- NA
+
+handle_missing(df, choice = "remove", missing = NA)
+handle_missing(df, choice = "impute", missing = NA)
+```
+
