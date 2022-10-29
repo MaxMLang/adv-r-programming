@@ -1,4 +1,4 @@
-# Selection of the Advanced R Programming course
+# Selection of the Advanced R Programming course <p align="right"> <a href="https://www.r-project.org" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/r-project/r-project-official.svg" alt="tensorflow" width="40" height="40"/> </a> 
 This repository is a selection of my worked assingments in the course _Advanced R Programming_ at LMU Munich. The course was conducted over a full semester by members of the [Statistical Learning and Data Science Chair (SLDS)](https://github.com/slds-lmu) of the LMU Munich.
 
 # Repo Structure
