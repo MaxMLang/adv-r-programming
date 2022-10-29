@@ -3,6 +3,12 @@
 # Selection of the Advanced R Programming course 
 This repository is a selection of my worked assingments in the course _Advanced R Programming_ at LMU Munich. The course was conducted over a full semester by members of the [Statistical Learning and Data Science Chair (SLDS)](https://github.com/slds-lmu) of the LMU Munich.
 
+# Table of contents
+- [Repo Structure](#repo-structure)
+- [Course Topics](#course-topics)
+- [Credits](#credits)
+
+
 # Repo Structure
 This repository is structure by the course topics, so each *bold* course topic has its own folder were several functions, case studies or any other code regarding that course topic is stored. 
 
