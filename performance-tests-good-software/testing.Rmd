@@ -1,0 +1,88 @@
+---
+title: "testing"
+author: "Max Lang"
+date: "10/29/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(sna)
+library(network)
+library(checkmate)
+```
+
+# is_connected
+This function checks if two nodes in an undirected Graph are connected. The graph of n vertices can be represented by a symmetric n x n matrix X of values 0 and 1, where the element in row a and column b, i.e. X[a, b] is 1 if the edges a and b are connected by an edge, and 0 otherwise. (The matrix is symmetric, so X[a, b] == X[b, a], since a connection from a to b implies a connection from b to a.). This is the so-called "Adjacency matrix".
+
+
+```{r, include= FALSE}
+# random graph
+set.seed(2)
+net <-  rgraph(4, mode = "graph", tprob = 0.5)
+net <-  network(net, directed = FALSE, vertex.attrnames = LETTERS[1:4])
+
+
+plot(net)
+```
+
+For the graph above this matrix could for example look like this if we numerate from the left clockwise, then the matrice would look like the following.
+
+$$
+A = 
+\begin{pmatrix}
+0 & 1 & 0 & 0 \\
+1 & 0 & 1 & 1 \\
+0 & 1 & 0 & 1 \\
+0 & 1 & 1 & 0
+\end{pmatrix}
+$$
+
+So this function takes an adjacency matrix as input `adjacency`, an integer value `beginning` and an integer value `end`, and checks whether there is a series of edges that connect the `beginning` to the `end` vertex, returning
+TRUE if it is the case and FALSE if not. 
+
+# Input
+adjacency: An adjacency matrix 
+beginning: An integer value
+end: An integer value
+
+# Output
+A logical vector returning `TRUE` if it is the case.
+
+# Code
+```{r}
+is_connected <- function(adjacency, beginning, end) {
+  assertMatrix(adjacency, any.missing = FALSE, mode = "numeric")
+  if (nrow(adjacency) != ncol(adjacency)) {
+    stop("adjacency must be a square matrix")
+  }
+  assertInt(beginning, lower = 1, upper = nrow(adjacency))
+  assertInt(end, lower = 1, upper = nrow(adjacency))
+  if (!all(adjacency == t(adjacency))) {
+    stop("matrix is not symmetric")
+  }
+  visited <- numeric(0)
+  current.nodes <- beginning
+
+  # if we hit a node we've seen before, then we quit and give up
+  while (length(current.nodes)) {
+    if (end %in% current.nodes) {
+      # we can reach the 'end' from here
+      # --> beginning and end are connected
+      return(TRUE)
+    }
+    visited <- c(visited, current.nodes)
+    current.nodes <- which(apply(adjacency[current.nodes, , drop = FALSE], 2, sum) > 0)
+    # choose a node that was not visited before
+    current.nodes <- setdiff(current.nodes, visited)
+  }
+  FALSE
+}
+```
+# Worked example
+So for the graph above we can check with the following code.
+```{r}
+is_connected(matrix(c(0,1,0,0,1,0,1,1,0,1,0,1,0,1,1,0), nrow = 4), 1, 4)
+```
+

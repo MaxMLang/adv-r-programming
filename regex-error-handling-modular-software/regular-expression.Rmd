@@ -43,3 +43,225 @@ string <- "https://www.google.com/ is probably the most popular url, sometimes u
 find_url(string)
 ```
 
+# ---------------------------------------------------------------------------------------------------------------
+# Zweite Hausarbeit
+# Programmieren mit Statistischer Software
+# SS 2022
+# ---------------------------------------------------------------------------------------------------------------
+# Before you start: Please register for this exam on moodle and make sure you have read *and signed* the angabe.pdf
+# included in this repository.
+# For this exercise, only base R packages and checkmate are allowed!
+# ---------------------------------------------------------------------------------------------------------------
+
+# In this exercise you are provided with a rds file storing a vector of some made up file names.
+# To ensure everything works correctly, it's better to just not touch the rds file, other than reading it into R
+# like this:
+exFileNames <- readRDS("assets/filenames.rds")
+# You can look at `exFileNames` in the RStudio environment pane or run e.g. `head(exFileNames)` in the console
+# to see the first few files (or rather file names).
+# You're going to work with that vector of file names throughout this exercise.
+# Imagine it contains the result of running `list.files()` on your local computer,
+# showing you all the files in e.g. the directory you keep your study projects in.
+#
+# Luckily the files follow a more or less consistent format. It seems like Jenny Bryan's advice on naming things was
+# followed at least partially (see https://speakerdeck.com/jennybc/how-to-name-files).
+#
+# FORMAT: File names have components "date", "project", "revision" and "extension", always in that order.
+# - File names start with the date they were created, in year-month-date order, but sadly separators "-" and "_" were
+#   used inconsistently, and sometimes no separator was used at all: It could either be 2022-02-23 or 2022_02_23
+#   or 20220223 for the same date. At least they always start with a 4-digit year, and month and day components
+#   are always two digits as well: It's 20220109 rather than 202219 for example.
+# - Project names could be any alphanumeric string it seems. They are separated from the date via "-".
+# - The revision follows the project name, and the two are always separated by "_", which seems good to know.
+# - The file extensions come at the end of the string, after the "." as usual. There are multiple file extensions
+#   with inconsistent capitalization, for example both "CSV" and "csv" of course refer to the same type of file.
+#   Also, some extensions are three characters, and others such as for R scripts are shorter.
+#   The files we care about all have extensions consisting of letters only, there are no .mp3 files for example.
+#
+# For evaluation purposes, a different randomly generated set of file names will be used, which might consist
+# of only one file name, or 50, or 100. They will have the same format but you should not rely on the exact contents
+# of the example file names we have provided with `exFileNames`.
+
+# Exercise 01: File Counts ---------------------------------------------------------------------------------------
+
+# With the list of files at hand, you first wonder what the most common file types are as identified by their extension.
+# You also wonder how many files there are per year.
+# Write a function that takes the vector of file names and returns a named integer vector with counts by either year
+# or file type (similar to what table() produces, see note below).
+#
+# Function arguments:
+# - `filenames` (no default): A `character` vector containing one or more file names.
+#                             Look at `exFileNames` for example input.
+# - `by`: A `character` with allowed values `"year"` or `"type"`, defaulting to `"type"`, that specifies whether to
+#         count files by year or by type (= file extension).
+#
+# Your function should use checkmate assertions to ensure that the input file names are of the expected format, i.e.
+# starting with a 4-digit year and having a file extension at least. The other parts of the file names are not
+# relevant to this particular task, so you can choose to ignore them.
+# Missing or empty (`character(0)`) values are not allowed.
+#
+# Return value:
+# A named `integer` vector, sorted in ascending frequency of counts (lowest to highest from left to right) and
+# names corresponding to respective year or file type. File extensions should be converted to lower case before
+# counting to avoid duplication due to different capitalizations. The names of the output vector should therefore
+# also be lower case for `by = "type"`.
+#
+# EXAMPLE for valid input from exFileNames:
+# exampleFiles <- c("2019-08-27-Assignment2_beta.r", "20200422-fermat-proof_DONE.Rds",
+#                   "2020_02_19-Assignment2_pls-help.Rds")
+# ex01FileCount(exampleFiles, by = "type")
+# Output: c("r" = 1L, "rds" = 2L)
+#
+# ex01FileCount(exampleFiles) -> Same output, since `by = "type"` should be the default.
+#
+# ex01FileCount(c("20190313-sample_final.Rds", "20210806-simulation-data_final.RDS"), by = "type")
+# Output: c("rds" = 2L)
+#
+# ex01FileCount(exampleFiles, by = "year")
+# Output: c("2019" = 1L, "2020" = 2L)
+#
+# Please note that the example output will look like this in the console:
+# 2019 2020
+#    1    2
+# And that the example output above uses e.g. `2L` to make clear that the numbers are supposed to be integers
+# rather than just numerics.
+#
+# EXAMPLE for invalid input:
+# exampleFiles <- c("Assignment2_beta.r", "20200422-fermat-proof_DONE.Rds", "2020_02_19-Assignment2_pls-help.Rds")
+# ex01FileCount(exampleFiles) -> Checkmate assertion error since one file does not start with a year/date as expected.
+#
+# exampleFiles <- c("2019-08-27-Assignment2_beta.r", "9999tempfile")
+# ex01FileCount(exampleFiles) -> Checkmate assertion error since one file does not have a file extension.
+#
+# ex01FileCount("") -> Checkmate assertion error since input file is an empty string.
+# ex01FileCount(list(file = "2022-03-13-myFile.rds")) -> Checkmate assertion error, input is not a character vector.
+#
+# ex01FileCount(c("20190313-sample_final.Rds", "20210806-simulation-data_final.RDS"), by = "extension")
+# -> Checkmate assertion error since `by` should be either `"year"` or `"type"`, nothing else
+#
+# Note: If you use table(), wrap it in c(), e.g. c(table(...)) to make the return value
+# a named vector and not an object of class "table". This part is similar to an earlier homework.
+# You can check your result with `is.integer()` (should be `TRUE`), and `class()` (should be integer), while
+# `names()` should give you a character vector of e.g. years for `by = "year"`.
+ex01FileCount <- function(filenames, by = "type") {
+  # Check only for year/file extension components this time, but ensure no missings or empty values.
+  assertCharacter(filenames, pattern = "^\\d{4}.*\\.([a-zA-Z]+)$", min.chars = 1, any.missing = FALSE, min.len = 1)
+  assertChoice(by, choices = c("year", "type"))
+
+  # Avoid if-else block by switching patterns for each case of "by", makes it easier to extend to other `by`'s
+  typePattern <- switch(by, year = "^\\d{4}", type = "([a-zA-Z]+)$")
+  # extract sub-matches for year/type, and iterate over them with vapply() to extract the list-element
+  # since regmatches yields a list.
+  fileSplit <- vapply(regmatches(filenames, regexec(typePattern, text = filenames)), function(x) x[[1]], "")
+
+  # 1. lower case the result
+  # 2. count occurrences with table, make it a named integer vector with c() (rather than class "table")
+  # 3. sort it in ascending order
+  # Stuff like this is why people like using pipes.
+  sort(c(table(tolower(fileSplit))))
+}
+
+# Exercise 02: File Names to DF -----------------------------------------------------------------------------------
+
+# Now that you can give yourself a broad overview of the files, you want to represent them in a more useful format
+# like a data.frame.
+# Write a function that takes a vector of file names and returns a `data.frame` with one variable per component.
+##
+# Function input:
+# - `filenames` (no default): A `character` vector containing one or more file names.
+#                             Look at `exFileNames` for example input.
+#
+# The input should be validated regarding the naming format described above, where invalid file names should
+# lead to a checkmate assertion error, as well as NAs or empty (`character(0)`) values.
+# Note that in this function you need all parts of the file name rather than just the year and extension like in
+# ex01FileCount(), so your validation pattern should reflect that.
+#
+# Return value:
+# A `data.frame` with the following `character` variables in that order(!):
+# - `date`: The date in ISO 8601 format, yyyy-mm-dd, e.g. "2022-06-27". Only use "-" to separate date components.
+# - `project`: The project part of the file name, as described above, e.g. "simulation-data".
+# - `revision`: The revision part of the file name, as described above, e.g. "beta" or "done"
+# - `ext`: The file extension, without ".", e.g. "rds"
+#
+# All variables should be of type `character` and lower case to avoid duplication due to differences in capitalization.
+#
+# EXAMPLES for valid input:
+# exampleFiles <- c("2020_06_20-sample_DONE.Csv", "2021-06-19-exam-prep_DONE.Rds", "20211224-homework_final2.pdf")
+# Return value:
+# data.frame(
+#   date = c("2020-06-20", "2021-06-19", "2021-12-24"),
+#   project = c("sample", "exam-prep", "homework"),
+#   revision = c("done", "done", "final2"),
+#   ext = c("csv", "rds", "pdf")
+# )
+#
+# You can also use str() to check the structure of your function's return value, which should look like this:
+# > str(ex02FileNamesDF(exampleFiles))
+# 'data.frame': 3 obs. of  4 variables:
+# $ date    : chr  "2020-06-20" "2021-06-19" "2021-12-24"
+# $ project : chr  "sample" "exam-prep" "homework"
+# $ revision: chr  "done" "done" "final2"
+# $ ext     : chr  "csv" "rds" "pdf"
+#
+# And to avoid confusion regarding row names or other attributes, you can check them with attributes():
+# > attributes(ex02FileNamesDF(exampleFiles))
+# $names
+# [1] "date" "project""revision" "ext"
+#
+# $row.names
+# [1] 1 2 3
+#
+# $class
+# [1] "data.frame"
+#
+# If you normally construct the `data.frame` it will automatically have row names starting with 1 up to the number of
+# rows, and there will be no other classes or attributes attached (this is what we expect / want).
+# For safety we still encourage you to check that your function behaves as you expect!
+#
+# exampleFiles <- "2020_06_20-sample_DONE.Csv"
+# Return value:
+# data.frame(
+#   date = c("2020-06-20"),
+#   project = c("sample"),
+#   revision = c("done"),
+#   ext = c("csv")
+# )
+#
+# EXAMPLES for invalid input:
+# (All of these should again lead to a checkmate assertion error!)
+# ex02FileNamesDF("220515-thesis_final.Rds") -> Date format not correct
+# ex02FileNamesDF(list(filename = "2020-11-03-sample_final2.pdf")) -> Not a character vector
+# ex02FileNamesDF("2022-04-08.rds") -> Does not match format (no project or revision component)
+# ex02FileNamesDF("2020_01_15-results.rds") -> Does not contain a revision component
+#
+# NB: If these file names seem irritating to you: You're right. Real examples of bad file names are much worse!
+ex02FileNamesDF <- function(filenames) {
+  # capture groups for year, month, date, project, revision, extension
+  pattern <- "^(\\d{4})[-_]?(\\d\\d)[-_]?(\\d\\d)-([[:alnum:]-]*)_([[:alnum:]-]*)\\.([a-zA-Z]+)$"
+
+  # Check pattern, and ensure no missing/empty values etc.
+  # where assertString in ex01AssertAddress insists on a length-1 input, assertCharacter allows other lengths
+  # and we ensure we get at least a length-1 vector.
+  assertCharacter(filenames, any.missing = FALSE, pattern = pattern, min.chars = 1, min.len = 1)
+
+  # Extract matches from capture groups
+  submatches <- regmatches(filenames, regexec(pattern = pattern, text = filenames))
+  # Iterate over matches (a list containing submatches)
+  matchlistdf <- lapply(submatches, function(x) {
+    # Convert to lower case and exclude first element (the full match, we don't need it)
+    x <- tolower(x[-1])
+    # Name vector according to specification, order is ensured to be the same as input anyway.
+    names(x) <- c("year", "month", "day", "project", "revision", "ext")
+    # Create data.frame (1 row) in format as required
+    data.frame(
+      # Paste the date together from its components, separated by "-".
+      date = paste(x[["year"]], x[["month"]], x[["day"]], sep = "-"),
+      project = x[["project"]], revision = x[["revision"]], ext = x[["ext"]]
+    )
+  })
+
+  # matchlistdf is a list containing 1-row data.frames, we can successively bind them row-wise with do.call(rbind, ...)
+  # The lapply-do.call-rbind pattern is mostly equivalent to purrr::map_dfr(), so it's very handy if you don't want
+  # to depend on purrr.
+  do.call(rbind, matchlistdf)
+}
