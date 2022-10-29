@@ -5,14 +5,14 @@ This repository is a selection of my worked assingments in the course _Advanced 
 
 # Table of contents
 - [Repo Structure](#repo-structure)
-- [Course Topics](#course-topics)
+- [Course topics](#course-topics)
 - [Credits](#credits)
 
 
 # Repo Structure
 This repository is structure by the course topics, so each *bold* course topic has its own folder were several functions, case studies or any other code regarding that course topic is stored. 
 
-# Course Topics
+# Course topics
 The course included the following topics:
 * Introduction & advanced git
   - collaborative software development practices
